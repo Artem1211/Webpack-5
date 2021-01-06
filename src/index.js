@@ -1,11 +1,11 @@
-
-import example from './images/example.png'
 import './styles/main.scss'
 
-console.log('test');
 class Game {
-    game = 'Violin Charades'
+  constructor() {
+    this.game = 'Violin Charades'
+  }
 }
+
 const myGame = new Game()
 
 // создаем параграф
