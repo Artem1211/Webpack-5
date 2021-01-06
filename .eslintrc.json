@@ -72,9 +72,11 @@
         "es6": true
     },
     "extends": [
+        "plugin:react/recommended",
         "eslint:recommended",
         "airbnb-base",
-        "prettier"
+        "prettier",
+        "plugin:react-hooks/recommended"
     ],
     "globals": {
         "Atomics": "readonly",
@@ -85,7 +87,7 @@
         "sourceType": "module"
     },
     "plugins": [
-        "prettier"
+        "react","prettier"
     ],
     "settings": {
         "import/resolver": "webpack"
