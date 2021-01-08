@@ -4,10 +4,16 @@ const PrettierPlugin = require('prettier-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const paths = require('./paths')
 
+const babelOptions = {
+  presets: ['@babel/preset-env', '@babel/preset-react', '@babel/typescript'],
+  plugins: ['@babel/plugin-proposal-class-properties'],
+}
+
 module.exports = {
-  entry: [paths.src + '/index.js'],
+  entry: [paths.src + '/index.tsx'],
   output: {
     path: paths.build,
     filename: '[name].bundle.js',
@@ -39,18 +45,17 @@ module.exports = {
 
     // Prettier configuration
     new PrettierPlugin(),
+    new ForkTsCheckerWebpackPlugin(),
   ],
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|ts|tsx)$/,
         exclude: /node_modules/,
         use: [
           {
             loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-react'],
-            },
+            options: babelOptions,
           },
         ],
       },
