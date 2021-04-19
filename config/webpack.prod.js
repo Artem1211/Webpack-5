@@ -1,8 +1,23 @@
 const { merge } = require('webpack-merge')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+// eslint-disable-next-line max-len
+const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin')
+const TerserWebpackPlugin = require('terser-webpack-plugin')
+
 const common = require('./webpack.common.js')
 const paths = require('./paths')
+
+const nodeModulesPath = paths.nodeModules
+
+const cssLoaders = [
+  MiniCssExtractPlugin.loader,
+  {
+    loader: 'css-loader',
+    options: {
+      sourceMap: false,
+    },
+  },
+]
 
 module.exports = merge(common, {
   mode: 'production',
@@ -22,37 +37,29 @@ module.exports = merge(common, {
   ],
   optimization: {
     minimize: true,
-    minimizer: [new CssMinimizerPlugin(), '...'],
-    // Once your build outputs multiple chunks, this option will ensure
-    // they share the webpack runtime instead of having their own.
-    // This also helps with long-term caching, since the chunks will only
-    // change when actual code changes, not the webpack runtime.
-    runtimeChunk: {
-      name: 'runtime',
-    },
-  },
-  performance: {
-    hints: false,
-    maxEntrypointSize: 512000,
-    maxAssetSize: 512000,
+    minimizer: [
+      new OptimizeCssAssetWebpackPlugin({
+        cssProcessorOptions: {
+          map: {
+            inline: false,
+            annotation: true,
+          },
+        },
+      }),
+      new TerserWebpackPlugin(),
+    ],
   },
   module: {
     rules: [
       {
-        test: /\.(scss|css)$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: false,
-              // CSS-стили будут применяться лишь к тем компонентам,
-              // в которые они импортированы
-              modules: true,
-            },
-          },
-          'sass-loader',
-        ],
+        test: /\.css$/,
+        use: cssLoaders,
+        exclude: [/node_modules/, nodeModulesPath],
+      },
+      {
+        test: /\.s[ac]ss$/,
+        use: [...cssLoaders, 'sass-loader'],
+        exclude: [/node_modules/, nodeModulesPath],
       },
     ],
   },

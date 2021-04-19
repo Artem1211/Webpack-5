@@ -91,6 +91,9 @@
         "prettier"
     ],
     "settings": {
-        "import/resolver": "webpack"
+        "import/resolver": "webpack",
+         "react": {
+             "version": "latest"
+         }
     }
 }

@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const webpack = require('webpack')
 
+const path = require('path')
 const PrettierPlugin = require('prettier-webpack-plugin')
 const ESLintPlugin = require('eslint-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
@@ -7,7 +9,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')
 const paths = require('./paths')
 
 module.exports = {
-  entry: [paths.src + '/index.js'],
+  entry: [path.resolve(paths.src, 'index.tsx')],
   output: {
     path: paths.build,
     filename: '[name].bundle.js',
@@ -15,6 +17,9 @@ module.exports = {
     publicPath: '/',
   },
   plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: [
@@ -28,8 +33,8 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       title: 'webpack Boilerplate',
-      favicon: paths.src + '/images/favicon.png',
-      template: paths.src + '/template.html', // шаблон
+      favicon: path.resolve(paths.src, 'images/favicon.png'),
+      template: path.resolve(paths.src, 'template.html'), // шаблон
       filename: 'index.html', // название выходного файла
     }),
     new ESLintPlugin({
@@ -40,19 +45,22 @@ module.exports = {
     // Prettier configuration
     new PrettierPlugin(),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.(js|ts|tsx|jsx)$/,
+        // https://github.com/webpack/webpack/issues/11467#issuecomment-691702706
+        // https://github.com/vercel/next.js/pull/17095
+        resolve: {
+          fullySpecified: false,
+        },
         exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-react'],
-            },
-          },
-        ],
+        use: ['babel-loader'],
       },
       {
         test: /\.(?:ico|gif|png|jpg|jpeg)$/i,

@@ -1,10 +1,25 @@
 const { merge } = require('webpack-merge')
-const webpack = require('webpack')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 const common = require('./webpack.common.js')
 const paths = require('./paths')
 
+const nodeModulesPath = paths.nodeModules
+
+const cssLoaders = [
+  'style-loader',
+  {
+    loader: 'css-loader',
+    options: {
+      sourceMap: true,
+    },
+  },
+]
+
 module.exports = merge(common, {
   mode: 'development',
+
   devtool: 'inline-source-map',
   devServer: {
     historyApiFallback: true,
@@ -16,22 +31,31 @@ module.exports = merge(common, {
   },
   plugins: [
     // Only update what has changed on hot reload
-    new webpack.HotModuleReplacementPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'assets/styles/[name].css',
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      // async: false,
+      typescript: {
+        diagnosticOptions: {
+          semantic: true,
+          syntactic: true,
+        },
+        mode: 'write-references',
+      },
+    }),
   ],
   module: {
     rules: [
       {
-        test: /\.(scss|css)$/,
+        test: /\.css$/,
+        use: cssLoaders,
+        exclude: [/node_modules/, nodeModulesPath],
+      },
+      {
+        test: /\.s[ac]ss$/,
         use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true,
-              // количество лоадеров перед этим
-              modules: true,
-            },
-          },
+          ...cssLoaders,
           {
             loader: 'sass-loader',
             options: {
@@ -39,6 +63,7 @@ module.exports = merge(common, {
             },
           },
         ],
+        exclude: [/node_modules/, nodeModulesPath],
       },
     ],
   },

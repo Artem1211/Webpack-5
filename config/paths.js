@@ -4,4 +4,5 @@ module.exports = {
   src: path.resolve(__dirname, '../src'),
   build: path.resolve(__dirname, '../dist'),
   public: path.resolve(__dirname, '../public'),
+  nodeModules: path.resolve(__dirname, '../node_modules'),
 }
